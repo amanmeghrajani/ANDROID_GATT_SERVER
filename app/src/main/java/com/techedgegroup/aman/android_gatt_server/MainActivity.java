@@ -1,10 +1,12 @@
 package com.techedgegroup.aman.android_gatt_server;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
@@ -16,10 +18,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
+    List<BluetoothDevice> mDevices = new ArrayList<>();
     BluetoothManager      mBluetoothManager    = null;
     BluetoothAdapter      mBluetoothAdapter    = null;
     BluetoothLeAdvertiser mBluetoothAdvertiser = null;
@@ -123,5 +128,16 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private class GattServerCallback extends BluetoothGattServerCallback {}
+    private class GattServerCallback extends BluetoothGattServerCallback {
+
+        @Override
+        public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
+            super.onConnectionStateChange(device, status, newState);
+            if(status == BluetoothProfile.STATE_CONNECTED) {
+                mDevices.add(device);
+            } else if (status == BluetoothProfile.STATE_DISCONNECTED) {
+                mDevices.remove(device);
+            }
+        }
+    }
 }
